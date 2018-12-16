@@ -6,7 +6,7 @@ CWTScale=2;
 
 % Path
 fileMotherPath='Test-source/';
-SourcePath='Aperture/W-F5.6';
+SourcePath='HomeMade';
 
 outPutDataPath=strcat('Data/',SourcePath,'/');
 if ~exist(outPutDataPath) 
@@ -17,7 +17,7 @@ filePath=strcat(fileMotherPath,SourcePath,'/');
 filePathList=dir(strcat(filePath,'*.jpg'));
 
 % Variable
-fileCount = 48;
+fileCount = 24;
 %image vertical and horizontal resolution
 Vres=1080;
 Hres=1920;
@@ -36,6 +36,7 @@ end
 
 %Read all image sequence into imageArray
 for u=1:fileCount
+%   imageName=filePathList((9*(u-1))+1).name;
   imageName=filePathList(u).name;
   a=strcat(filePath,imageName);
   imageArray(:,:,u)=rgb2gray(imread(a));
@@ -73,16 +74,16 @@ save(DataNamePath,'maskOutPutSequence');
 
 % show surf
 frame = floor(fileCount/2);
-% frame =4;
+% frame =10;
 surf(maskOutPutSequence(:,:,frame));
 shading interp;view(0,-90);title(strcat(motherWavelet,'-',num2str(frame)));
 
 % ----------------------------------------------------------------
 
 %Black
-clampBottom=75;
+clampBottom=2;
 %White
-clampHead=100;
+clampHead=20;
 % save masked pic
 clampDelta=clampHead-clampBottom;
 alphaSequence16=zeros(Vres,Hres,fileCount);
@@ -136,12 +137,12 @@ VideoName = strcat(outPutFileWaveletMaskedVideoPath,'/','Video');
 v=VideoWriter(VideoName,'MPEG-4');
 v.FrameRate=24;
 open(v);
-for i=1:60
+for i=1:fileCount/2
 OneMaskedPicName = strcat(outPutFileWaveletMaskedPath,'/','MaskedPic.',num2str(2*i-1),'.png');
 OneMaskedPic = imread(OneMaskedPicName);
 writeVideo(v,OneMaskedPic);
 end
-for i=1:60
+for i=1:fileCount/2
 OneMaskedPicName = strcat(outPutFileWaveletMaskedPath,'/','MaskedPic.',num2str(2*i),'.png');
 OneMaskedPic = imread(OneMaskedPicName);
 writeVideo(v,OneMaskedPic);
