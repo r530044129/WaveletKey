@@ -1,12 +1,12 @@
 %ChooseMotherWavelet
-motherWavelet='bior3.3';
+motherWavelet='bior1.1';
 CWTScale=2;
 
 % ----------------------------------------------------------------
 
 % Path
 fileMotherPath='Test-source/';
-SourcePath='HomeMade';
+SourcePath='Transparent/1';
 
 outPutDataPath=strcat('Data/',SourcePath,'/');
 if ~exist(outPutDataPath) 
@@ -17,7 +17,7 @@ filePath=strcat(fileMotherPath,SourcePath,'/');
 filePathList=dir(strcat(filePath,'*.jpg'));
 
 % Variable
-fileCount = 24;
+fileCount = 120;
 %image vertical and horizontal resolution
 Vres=1080;
 Hres=1920;
@@ -37,7 +37,7 @@ end
 %Read all image sequence into imageArray
 for u=1:fileCount
 %   imageName=filePathList((9*(u-1))+1).name;
-  imageName=filePathList(u).name;
+   imageName=filePathList(u).name;
   a=strcat(filePath,imageName);
   imageArray(:,:,u)=rgb2gray(imread(a));
 end
@@ -66,7 +66,7 @@ end
 timeOver = toc(timeStart);
 
 % save maskOutPutSequence data
-DataName = strcat(num2str(fileCount),'_MOPS_',motherWavelet,'_',num2str(CWTScale),'_',num2str(round(timeOver/60)),'mins','.mat');
+DataName = strcat('extract',num2str(fileCount),'_MOPS_',motherWavelet,'_',num2str(CWTScale),'_',num2str(round(timeOver/60)),'mins','.mat');
 DataNamePath=strcat(outPutDataPath,DataName);
 save(DataNamePath,'maskOutPutSequence');
 
@@ -81,9 +81,9 @@ shading interp;view(0,-90);title(strcat(motherWavelet,'-',num2str(frame)));
 % ----------------------------------------------------------------
 
 %Black
-clampBottom=2;
+clampBottom=60;
 %White
-clampHead=20;
+clampHead=180;
 % save masked pic
 clampDelta=clampHead-clampBottom;
 alphaSequence16=zeros(Vres,Hres,fileCount);
@@ -132,7 +132,7 @@ end
 outPutFileWaveletMaskedVideoPath=strcat(outPutFileWaveletAlphaPath,'/','MaskedVideo');
 if ~exist(outPutFileWaveletMaskedVideoPath) 
     mkdir(outPutFileWaveletMaskedVideoPath)         
-end 
+end
 VideoName = strcat(outPutFileWaveletMaskedVideoPath,'/','Video');
 v=VideoWriter(VideoName,'MPEG-4');
 v.FrameRate=24;
