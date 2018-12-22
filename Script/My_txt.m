@@ -152,3 +152,32 @@ OneMaskedPic = imread(OneMaskedPicName);
 writeVideo(v,OneMaskedPic);
 end
 close(v);
+
+load('plotContainer_555,1400.mat')
+pc=plotContainer;
+a=cwt(pc,2,'bior1.1');
+b=cwt(pc,4,'bior1.1');
+a=abs(a);b=abs(b);
+c=abs(a-b);
+subplot(311);plot(a);subplot(312);plot(b);subplot(313);plot(c);
+
+%Denoisy
+V1=1;V2=Vres;
+deltaV=V2-V1;
+h = waitbar(0,'Please wait...');
+timeStart = tic;
+for V=V1:V2
+    for H=1:Hres
+        singlePixelSignal=[];
+        for frame=1:fileCount           
+            singlePixelSignal=[singlePixelSignal,maskOutPutSequence(V,H,frame)];
+        end
+        xd = wden(singlePixelSignal,'minimaxi','s','mln',5,'sym5');
+        for frame=1:fileCount
+             maskOutPutSequence_denoisy(V,H,frame)=uint16(abs(xd(frame)));
+        end
+        str=['Denoisy-请等待...',num2str((V-V1)/deltaV*100),'%'];
+        waitbar((V-V1)/deltaV,h,str);
+    end
+end
+timeOver = toc(timeStart);

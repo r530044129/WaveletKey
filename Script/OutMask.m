@@ -1,12 +1,12 @@
 %ChooseMotherWavelet
 motherWavelet='bior1.1';
-CWTScale=2;
+CWTScale=8;
 
 % ----------------------------------------------------------------
 
 % Path
 fileMotherPath='Test-source/';
-SourcePath='Transparent/1';
+SourcePath='Transparent/2';
 
 outPutDataPath=strcat('Data/',SourcePath,'/');
 if ~exist(outPutDataPath) 
@@ -24,6 +24,7 @@ Hres=1920;
 imageArray=zeros(Vres,Hres,fileCount);
 %create fileCount room
 maskOutPutSequence=zeros(Vres,Hres,fileCount);
+% maskOutPutSequence_denoisy=zeros(Vres,Hres,fileCount);
 
 outPutFilePath=strcat('OutPut/',SourcePath);
 if ~exist(outPutFilePath) 
@@ -36,8 +37,8 @@ end
 
 %Read all image sequence into imageArray
 for u=1:fileCount
-%   imageName=filePathList((9*(u-1))+1).name;
-   imageName=filePathList(u).name;
+   imageName=filePathList((9*(u-1))+1).name;
+%    imageName=filePathList(u).name;
   a=strcat(filePath,imageName);
   imageArray(:,:,u)=rgb2gray(imread(a));
 end
@@ -56,8 +57,11 @@ for V=V1:V2
             singlePixelSignal=[singlePixelSignal,imageArray(V,H,frame)];
         end
         coeffecients=cwt(singlePixelSignal,CWTScale,motherWavelet);
+%         co = abs(coeffecients);
+%         xd = wden(co,'minimaxi','s','mln',5,'sym5');
         for frame=1:fileCount
              maskOutPutSequence(V,H,frame)=uint16(abs(coeffecients(frame)));
+%              maskOutPutSequence_denoisy(V,H,frame)=unit(xd(frame));
         end
         str=[SourcePath,'-',motherWavelet,'-',num2str(CWTScale),'-请等待...',num2str((V-V1)/deltaV*100),'%'];
         waitbar((V-V1)/deltaV,h,str);
@@ -66,24 +70,27 @@ end
 timeOver = toc(timeStart);
 
 % save maskOutPutSequence data
-DataName = strcat('extract',num2str(fileCount),'_MOPS_',motherWavelet,'_',num2str(CWTScale),'_',num2str(round(timeOver/60)),'mins','.mat');
+DataName = strcat(num2str(fileCount),'_MOPS_',motherWavelet,'_',num2str(CWTScale),'_',num2str(round(timeOver/60)),'mins','.mat');
 DataNamePath=strcat(outPutDataPath,DataName);
 save(DataNamePath,'maskOutPutSequence');
 
 % ----------------------------------------------------------------
 
 % show surf
-frame = floor(fileCount/2);
-% frame =10;
+figure(3);
+% frame = floor(fileCount/2);
+frame =40;
 surf(maskOutPutSequence(:,:,frame));
-shading interp;view(0,-90);title(strcat(motherWavelet,'-',num2str(frame)));
+shading interp;view(0,-90);
+% title(strcat(motherWavelet,'-',num2str(frame)));
+title(strcat('NonDenoisy-',num2str(frame)));
 
 % ----------------------------------------------------------------
 
 %Black
-clampBottom=60;
+clampBottom=85;
 %White
-clampHead=180;
+clampHead=120;
 % save masked pic
 clampDelta=clampHead-clampBottom;
 alphaSequence16=zeros(Vres,Hres,fileCount);
